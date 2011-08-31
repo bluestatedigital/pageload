@@ -1,0 +1,7 @@
+[
+    {
+        "url": "http://google.com/",
+        "name": "mytest",
+        "params": {"runs": 1}
+    }
+]
