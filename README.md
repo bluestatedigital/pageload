@@ -77,11 +77,11 @@ This command will run all tests in tests.json and store the results in the curre
 Analyzing Test Runs
 -------------------
 
-    The core to analyzing test results is to filter them by key pieces of information.  To see what kind of filters are available and what information each provide, use the list-filters command.  Webpagetest collects data for 'first views' and 'repeat views'.  All filters are prefixed by either fv (first view) or rv (repeat view).
+The core to analyzing test results is to filter them by key pieces of information.  To see what kind of filters are available and what information each provide, use the list-filters command.  Webpagetest collects data for 'first views' and 'repeat views'.  All filters are prefixed by either fv (first view) or rv (repeat view).
 
-    Filters can be one of two types: a normal filter or an aggregate filter.  Normal filters just present the data as it is.  For example, fv_url_and_ttfb will simply output each request and the time to first byte for that request.  Aggregate filters will combine data in some way.  fv_count, for example, shows the number of CSS, Javascript, and image requests by scanning all requests and counting based on the content-type header.
+Filters can be one of two types: a normal filter or an aggregate filter.  Normal filters just present the data as it is.  For example, fv_url_and_ttfb will simply output each request and the time to first byte for that request.  Aggregate filters will combine data in some way.  fv_count, for example, shows the number of CSS, Javascript, and image requests by scanning all requests and counting based on the content-type header.
 
-    Using the list-filters sub-command can show which filters are available:
+Using the list-filters sub-command can show which filters are available:
 
     $ pageload list-filters
     fv_count - (type: aggregate) Time to load, # of assets and their sizes (first view)
@@ -90,7 +90,7 @@ Analyzing Test Runs
     fv_start_end_time - (type: normal) Start time and end time for each resource (first view)
     fv_url_and_ttl - (type: normal) Time to load for each resource (first view)
 
-    The filter sub-command is used to perform one of these filters.  The filter command MUST be run in the same directory that the tests are in.  To find out which tests are visible from the current directory, use the 'ls' subcommand:
+The filter sub-command is used to perform one of these filters.  The filter command MUST be run in the same directory that the tests are in.  To find out which tests are visible from the current directory, use the 'ls' subcommand:
 
     $ pageload ls
     first_test
@@ -100,7 +100,7 @@ Analyzing Test Runs
       [4f545e21] 2011/08/25 14:07:16
       [ee168e04] 2011/08/31 13:08:20
 
-    The important information here is the hash which identifies this test uniquely, and the date/time it was run.  The hash will can be used with the filter command to specify which test(s) to run the filter on:
+The important information here is the hash which identifies this test uniquely, and the date/time it was run.  The hash will can be used with the filter command to specify which test(s) to run the filter on:
 
     $ pageload filter --filter=fv_count 7aaf7151:1
     [7aaf7151a2f470db298537f62bd3158f] run 1 (2011/08/25 14:16:26)
@@ -159,3 +159,16 @@ Alternatively, --combine=<mean|median> can be specified to further compare many 
     CSS files                2
     CSS size (bytes)         14142
 
+At an even higher level, you can diff two sets of test runs using the --diff option.  This adds a column at the end that showing the difference:
+
+    $ pageload filter --filter=fv_count 7aaf7151:1-2 4f545e21:1-2 --combine=median --diff
+                             7aaf7151:1,2                  4f545e21:1,2                  diff                          
+    Images size (bytes)      280623.0                      280172.0                      -451.0               
+    Image files              31.5                          34.0                          +2.5                 
+    Time to Load (ms)        8097.0                        8764.0                        +667.0               
+    JS files                 21.0                          21.0                          +0.0                 
+    Time to First Byte (ms)  2559.0                        1906.0                        -653.0               
+    JS size (bytes)          306577.0                      290960.5                      -15616.5             
+    TTL - TTFB (ms)          5538.0                        6858.0                        +1320.0              
+    CSS files                4.0                           4.0                           +0.0                 
+    CSS size (bytes)         16488.0                       14375.0                       -2113.0 
