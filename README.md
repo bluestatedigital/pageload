@@ -1,10 +1,13 @@
 Pageload Performance Monitoring
 ===============================
 
+Python CLI and library that collects data using the webpagetest.org API and can run analysis on the data.
+
 Requirements
 ------------
 
 * Python 2.7+
+* webpagetest.org API key
 
 Installing
 ----------
