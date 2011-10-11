@@ -4,31 +4,25 @@ from functools import reduce
 from pageload.Colors import AnsiColors
 
 class CountFilter:
-    strings = {
-        'time_to_load': 'Time to Load (ms)',
-        'time_to_first_byte': 'Time to First Byte (ms)',
-        'ttl_minus_ttfb': 'TTL - TTFB (ms)',
-        'js_files': 'JS files',
-        'css_files': 'CSS files',
-        'image_files': 'Image files',
-        'js_size': 'JS size (bytes)',
-        'css_size': 'CSS size (bytes)',
-        'image_size': 'Images size (bytes)'
-    }
-
     def filter( self, testResult, runList ):
         rVal = list()
         for runIndex in runList:
             requests = self.getRequests(testResult, runIndex - 1)
-            values = self.getValues(requests)
-            valuesFormatted = dict()
-            for k, v in values.items():
-                valuesFormatted[ self.strings[k] ] = v
-            rVal.append( FilterResultsDict(testResult, runIndex, valuesFormatted) )
+            rVal.append( FilterResultsDict(testResult, runIndex, self.getValues(requests)) )
         return rVal
 
     def getValues(self, requests):
-        values = dict(map(lambda x: (x, 0), list(self.strings.keys())))
+        values = {
+            'time_to_load': 0,
+            'time_to_first_byte': 0,
+            'ttl_minus_ttfb': 0,
+            'js_files': 0,
+            'css_files': 0,
+            'image_files': 0,
+            'js_size': 0,
+            'css_size': 0,
+            'image_size': 0
+        }
         for index, request in enumerate(requests):
             if index == 0:
                 values['time_to_load'] = int(request['Time to Load (ms)'])
@@ -116,6 +110,18 @@ class FilterResultsList:
         return rVal
 
 class FilterResultsDict:
+    strings = {
+        'time_to_load': 'Time to Load (ms)',
+        'time_to_first_byte': 'Time to First Byte (ms)',
+        'ttl_minus_ttfb': 'TTL - TTFB (ms)',
+        'js_files': 'JS files',
+        'css_files': 'CSS files',
+        'image_files': 'Image files',
+        'js_size': 'JS size (bytes)',
+        'css_size': 'CSS size (bytes)',
+        'image_size': 'Images size (bytes)'
+    }
+
     def __init__(self, testResult, run, dictionary):
         self.__dict__.update(locals())
     def __str__(self):
@@ -123,8 +129,15 @@ class FilterResultsDict:
         rVal = '[%s] run %d (%s)\n' % (styler.color(self.testResult.getSignature(), 'yellow'), self.run, self.testResult.getDateTime().strftime('%Y/%m/%d %H:%M:%S'))
         rVal += 'Run directory: %s\n' % (styler.color(os.path.join(self.testResult.testDir, 'run/' + str(self.run)), 'red'))
         for k, v in self.dictionary.items():
-            rVal += '  %s: %s\n' % (k, v)
+            rVal += '  %s: %s\n' % (self.strings[k], v)
         return rVal
+
+    def asJson(self):
+        rVal = "{\n";
+        for k, v in self.dictionary.items():
+            rVal += "\t  '%s': %d,\n" % (k, v)
+        return rVal + "\n}"
+
 
 class FilterResultsDictComparator:
     def __init__(self, filteredResultsDicts):

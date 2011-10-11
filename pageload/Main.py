@@ -124,6 +124,11 @@ def Cli():
         action='store_true',
         help = 'For an aggregate filter, compare results side-by-side instead of listing them one after the other.')
 
+    commands['filter'].add_argument('-o', '--output-format',
+        action='store',
+        default = 'text',
+        help = 'How to format the output, ie (json, text)')
+
     commands['filter'].add_argument('-d', '--diff',
         action='store_true',
         help = 'When used with --compare or --combine, the difference between the results is displayed.')
@@ -168,8 +173,13 @@ def Cli():
             result = f.filter( testResult, runList )
             filteredTestResultsLists.append(result)
 
-        # flatten the list
+
         filteredTestResults = [item for sublist in filteredTestResultsLists for item in sublist]
+        if cli.output_format == "json":
+            for result in filteredTestResults:
+                print(result.asJson())
+                sys.exit(0)
+
 
         if cli.compare:
             if not isinstance(filteredTestResults[0], FilterResultsDict):
