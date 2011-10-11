@@ -1,4 +1,4 @@
-import os
+import os, json
 from itertools import izip
 from functools import reduce
 from pageload.Colors import AnsiColors
@@ -133,10 +133,7 @@ class FilterResultsDict:
         return rVal
 
     def asJson(self):
-        rVal = "{\n";
-        for k, v in self.dictionary.items():
-            rVal += "\t  '%s': %d,\n" % (k, v)
-        return rVal + "\n}"
+        return json.dumps(self.dictionary)
 
 
 class FilterResultsDictComparator:
