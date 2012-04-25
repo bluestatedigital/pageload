@@ -69,6 +69,7 @@ class PageLoadTest:
         fp.write(data)
         fp.close()
 
+        self.logger.debug("Retrieved data\n %s" % data)
         tree = self._getXmlTree(data)
         xmlUrl = urlparse(tree.find('data/xmlUrl').text).path
 
