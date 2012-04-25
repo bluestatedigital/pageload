@@ -301,7 +301,7 @@ def Cli():
                 requestParams['params'] = dict(globalParams.items() + requestParams['params'].items())
             requestParams['params']['url'] = requestParams['url']
             testFactory = PageLoadTestFactory()
-            directoryFactory = PageLoadTestDirectoryFactory( PageLoadTestResultsFactory() )
+            directoryFactory = PageLoadTestDirectoryFactory(PageLoadTestResultsFactory())
             testDirectory = directoryFactory.load( os.path.join(cli.results_dir, requestParams['name']) )
             pageload = testFactory.create(testDirectory, requestParams['url'], requestParams['params'])
             results = pageload.run()

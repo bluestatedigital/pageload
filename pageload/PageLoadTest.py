@@ -23,7 +23,6 @@ class PageLoadTest:
         }
 
     def run(self):
-
         timestamp = datetime.today()
         baseDir = self.testDirectory.getDirectory()
 
@@ -65,7 +64,7 @@ class PageLoadTest:
         parameters.write( json.dumps(testParameters, sort_keys=True, indent=4) )
         parameters.close()
 
-        (response, data) = self._makeHttpRequest('POST', '/runtest.php', urllib.urlencode(self.config), self.defaultHeaders)
+        (response, data) = self._makeHttpRequest('POST', self.config['wptserver'], '/runtest.php', urllib.urlencode(self.config), self.defaultHeaders)
         fp = open( assets['request.xml'], 'w' )
         fp.write(data)
         fp.close()
@@ -78,7 +77,7 @@ class PageLoadTest:
         slept = 0
         cont = False
         while True:
-            (response, statusData) = self._makeHttpRequest('GET', xmlUrl)
+            (response, statusData) = self._makeHttpRequest('GET', self.config['wptserver'], xmlUrl)
             statusTree = self._getXmlTree(statusData)
             statusCode = int(statusTree.find('statusCode').text)
             if 100 <= statusCode < 200:
@@ -102,7 +101,7 @@ class PageLoadTest:
         self.logger.info('Results finished processing')
         self.logger.info('Downloading reports')
 
-        (response, data) = self._makeHttpRequest('GET', urlparse(tree.find('data/xmlUrl').text).path)
+        (response, data) = self._makeHttpRequest('GET', self.config['wptserver'], urlparse(tree.find('data/xmlUrl').text).path)
         resultTree = self._getXmlTree(data)
         tData = data
 
@@ -112,7 +111,7 @@ class PageLoadTest:
 
         for asset, xmlElement in {'summary.csv': 'data/summaryCSV', 'detail.csv': 'data/detailCSV'}.items():
             urlParts = urlparse( tree.find( xmlElement ).text )
-            (response, data) = self._makeHttpRequest('GET', urlParts.path)
+            (response, data) = self._makeHttpRequest('GET', self.config['wptserver'], urlParts.path)
             fp = open( assets[asset], 'w' )
             fp.write( data )
             fp.close()
@@ -166,12 +165,12 @@ class PageLoadTest:
         self.testDirectory.addResult( result )
         return result
 
-    def _makeHttpRequest(self, method, url, params='', headers={}):
-        httpConnection = httplib.HTTPConnection('www.webpagetest.org')
-        httpConnection.request(method, url, params, headers)
+    def _makeHttpRequest(self, method, host, path, params='', headers={}):
+        httpConnection = httplib.HTTPConnection(host)
+        httpConnection.request(method, path, params, headers)
         response = httpConnection.getresponse()
         data = response.read()
-        self.logger.info('%s %s (HTTP %s %s)' % (method.upper(), url, response.status, response.reason))
+        self.logger.info('%s %s %s (HTTP %s %s)' % (method.upper(), host, path, response.status, response.reason))
         httpConnection.close()
         return (response, data)
 
